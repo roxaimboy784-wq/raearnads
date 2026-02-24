@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RK EARNS</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <div id="toast-container"></div>
+    <script src="js/user-bundle.js"></script>
+
+    <!-- Unity Ads Native Bridge Interface -->
+    <!-- This assumes the HTML is running inside a Unity Android WebView or Capacitor plugin -->
+    <script>
+        // Setup Native Bridge Interface
+        window.UnityAdsBridge = {
+            isInitialized: false,
+
+            // Called by the Native App when it's ready
+            setInitialized: function () {
+                this.isInitialized = true;
+                console.log("Unity Ads Bridge Initialized.");
+            },
+
+            // Call this to show Banner
+            showBanner: function () {
+                const gameId = window.store ? window.store.getSettings().unityGameId : 'UNKNOWN';
+                if (window.AndroidAdsInterface) {
+                    window.AndroidAdsInterface.showBannerAd(Banner_Android);
+                } else {
+                    console.log(`Mock: Showing Unity Banner Ad (Android) for GameID: ${gameId}`);
+                }
+            },
+
+            // Call this to hide Banner
+            hideBanner: function () {
+                if (window.AndroidAdsInterface) {
+                    window.AndroidAdsInterface.hideBannerAd();
+                } else {
+                    console.log("Mock: Hiding Unity Banner Ad (Android)");
+                }
+            },
+
+            // Call this to show Interstitial
+            showInterstitial: function (Interstitial_Android) {
+                const gameId = window.store ? window.store.getSettings().unityGameId : 'UNKNOWN';
+                if (window.AndroidAdsInterface) {
+                    window.AndroidAdsInterface.showInterstitialAd(6051423);
+                } else {
+                    console.log(`Mock: Showing Unity Interstitial Ad (Android) for GameID: ${gameId}`);
+                }
+            },
+
+            // Call this to show Rewarded ad
+            showRewarded: function (Rewarded_Android) {
+                const gameId = window.store ? window.store.getSettings().unityGameId : 'UNKNOWN';
+                if (window.AndroidAdsInterface) {
+                    window.AndroidAdsInterface.showRewardedAd(6051423);
+                } else {
+                    console.warn(`Native interface missing. Mocking Rewarded Ad success for GameID: ${gameId}...`);
+                    setTimeout(() => window.UnityAdsBridge.onRewardedAdCompleted(), 3000); // mock success after 3s
+                }
+            },
+
+            // Native App calls this back when Rewarded Ad finishes
+            onRewardedAdCompleted: function (Rewarded_Android) {
+
+                // Dispatch event so the JS app can listen and grant rewards
+                const event = new CustomEvent('unity-rewarded-completed');
+                document.dispatchEvent(event);
+            }
+        };
+    </script>
+</body>
+
+</html>
